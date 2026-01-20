@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>AR Eiffel Tower</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+
+<style>
+  body { margin: 0; overflow: hidden; font-family: 'Sarabun', sans-serif; }
+  #infoBox {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.50); color: #fff; padding: 20px;
+    border-radius: 15px; font-size: 16px; width: 80%; max-width: 600px;
+    display: none; z-index: 9999; border: 1px solid #ffd700;
+  }
+  #infoTitle { font-size: 20px; font-weight: bold; color: #ffd700; margin-bottom: 10px; }
+  #soundBtn {
+    position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8);
+    color: #ffd700; border: 1px solid #ffd700; border-radius: 50px;
+    padding: 10px 18px; font-size: 14px; cursor: pointer; z-index: 9999;
+  }
+</style>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const marker = document.querySelector("a-marker");
+  const infoBox = document.getElementById("infoBox");
+  const soundEntity = document.querySelector("#bgSound");
+  const soundBtn = document.getElementById("soundBtn");
+
+  let isSoundEnabled = false; 
+  let isMarkerVisible = false;
+
+  // ฟังก์ชันสำหรับจัดการเสียง
+  const manageAudio = () => {
+    if (isMarkerVisible && isSoundEnabled) {
+      soundEntity.components.sound.playSound();
+    } else {
+      soundEntity.components.sound.stopSound();
+    }
+  };
+
+  marker.addEventListener("markerFound", () => {
+    isMarkerVisible = true;
+    infoBox.style.display = "block";
+    manageAudio();
+  });
+
+  marker.addEventListener("markerLost", () => {
+    isMarkerVisible = false;
+    infoBox.style.display = "none";
+    manageAudio();
+  });
+
+  soundBtn.addEventListener("click", () => {
+    isSoundEnabled = !isSoundEnabled;
+    
+    // อัปเดต UI ปุ่ม
+    soundBtn.innerText = isSoundEnabled ? "🔊 เปิดเสียงอยู่" : "🔇 ปิดเสียงอยู่";
+    
+    // จัดการเสียงทันทีที่กดปุ่ม
+    manageAudio();
+  });
+});
+</script>
+</head>
+
+<body>
+  <button id="soundBtn">🔇 ปิดเสียงอยู่</button>
+
+ <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-entity id="bgSound" sound="src: url(gg.mp3); loop: true; autoplay: false;"></a-entity>
+
+    <a-light type="ambient" color="#ffffff" intensity="2.5"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="1.0" position="-5 6 0"></a-light>
+
+    <a-marker type="pattern" url="./pattern-ar-marker10.patt">
+      <a-entity rotation="-90 0 0">
+        <a-entity
+          gltf-model="scene.gltf"
+          scale="0.3 0.3 0.3"
+          position="0 0 0"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+        </a-entity>
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <div id="infoBox">
+    <div id="infoTitle">หอไอเฟล (The Eiffel Tower)</div>
+    <div>
+      หอไอเฟล สร้างขึ้นในปี ค.ศ. 1889 ที่กรุงปารีส เพื่อเฉลิมฉลองครบรอบ 100 ปี
+      การปฏิวัติฝรั่งเศส ออกแบบโดยกุสตาฟ ไอเฟล กลายเป็นสัญลักษณ์สำคัญของประเทศฝรั่งเศส
+    </div>
+  </div>
+</body>
+</html>
